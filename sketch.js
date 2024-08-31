@@ -1,5 +1,6 @@
 const canvasSketch = require('canvas-sketch');
 const random = require('canvas-sketch-util/random');
+const math = require('canvas-sketch-util/math');
 
 const settings = {
   dimensions: [ 1080, 1080 ],  //change demension
@@ -20,6 +21,25 @@ const sketch = ({ context, width, height }) => {
     context.fillStyle = 'white';
     context.fillRect(0, 0, width, height);
 
+    for(let i = 0; i < agent.length; i++){
+      const agents = agent[i];
+
+      for(let j = i + 1; j < agent.length; j++){
+        const other = agent[j];
+
+        const dist = agents.pos.getDistence(other.pos);
+
+        if (dist > 200) continue;
+
+        context.lineWidth = math.mapRange(dist, 0, 200, 12, 1);
+
+        context.beginPath();
+        context.moveTo(agents.pos.x, agents.pos.y);
+        context.lineTo(other.pos.x, other.pos.y);
+        context.stroke();
+      }
+    }
+
     agent.forEach(agent => {
       agent.update();
       agent.drow(context);
@@ -37,6 +57,12 @@ class Vector{
     this.x = x;
     this.y = y;
   };
+
+  getDistence(v){
+    const dx = this.x - v.x;
+    const dy = this.y - v.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 };
 
 class Agent {
